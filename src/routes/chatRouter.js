@@ -17,8 +17,17 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 router
-    .route("/")
-    .post(upload.single('audio'), chatController.chatResponse)
+    .route("/voice")
+    .post(upload.single('audio'), chatController.handleVoiceInput)
+
+router
+    .route("/text")
+    .post(chatController.handleTextInput)
+    
+router
+  .route('/clear-chat')
+  .get(chatController.handleClearChat)
+
 
 
 
