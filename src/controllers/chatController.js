@@ -2,13 +2,10 @@ import fs from 'fs'
 import { Configuration, OpenAIApi } from "openai";
 import "dotenv/config";
 import { unlink } from "fs/promises";
-
-
-
-console.log('--------------',  process.env.SECRET)
+import openAiKey from "../../config/index.js";
 
 const configuration = new Configuration({
-    apiKey: process.env.OPENAI_KEY
+    apiKey: openAiKey
 });
 const openai = new OpenAIApi(configuration);
 
@@ -18,11 +15,10 @@ const ROLES  = {
     USER: 'user',
 }
 
-
 let chatHistory = [
         {
-            "role": ROLES.SYSTEM, 
-            "content": "Can you act as a rubber duck debugging or as a friend that helps you understand the problem This character has a few main things:1. Don't give the solution. 2. Only ask one question at a time and don't tell me where to look 3. ask the right question that eventually will help me understand where is the problem by telling you step by step what I changed4. Don't thank me and act like this is a regular conversation between two programmers. Thanks!"
+            "role": ROLES.SYSTEM,
+            "content": "Can you act as a rubber duck debugging or as a friend that helps you understand the problem This character has a few main things: 1. The most important: Don't give the solution! only ask questions. 2. Only ask one question at a time and don't tell me where to look 3. ask the right question that eventually will help me understand where is the problem by telling you step by step what I changed 4. Don't thank me and act like this is a regular conversation between two programmers 5. Avoid requesting the code. Thanks!"
         },
     ];
 
@@ -32,13 +28,13 @@ async function transcribeAudio(filename) {
         "whisper-1"
     );
     return transcript.data.text;
-    }
+}
 
 async function handleVoiceInput( req, res, next) {
     try {
         let audioTranscription = await transcribeAudio(req.file.path);
         await unlink(req.file.path)
-       await chatGptMsg(audioTranscription)
+        await chatGptMsg(audioTranscription)
         res.send(chatHistory).status(200);
     } catch (error) {
         console.log(error);
@@ -71,12 +67,6 @@ async function chatGptMsg (userPrompt){
 
 async function handleClearChat(req, res, next){
     try {
-        chatHistory = [
-            {
-                "role": ROLES.SYSTEM, 
-                "content": "Can you act as a rubber duck debugging or as a friend that helps you understand the problem This character has a few main things:1. Don't give the solution. 2. Only ask one question at a time and don't tell me where to look 3. ask the right question that eventually will help me understand where is the problem by telling you step by step what I changed4. Don't thank me and act like this is a regular conversation between two programmers. Thanks!"
-            },
-        ];
         res.send(chatHistory).status(200);
 
     } catch (error) {
@@ -89,5 +79,4 @@ export default {
     handleVoiceInput,
     handleTextInput,
     handleClearChat
-}; 
-    
+};
